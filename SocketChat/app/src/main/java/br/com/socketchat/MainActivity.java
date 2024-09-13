@@ -9,12 +9,18 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.EditText;
 
+import br.com.socketchat.model.User;
+import br.com.socketchat.repository.UserRepository;
+
 public class MainActivity extends AppCompatActivity {
+
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        userRepository = new UserRepository(getApplication());
 
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
          != PackageManager.PERMISSION_GRANTED)
@@ -23,7 +29,9 @@ public class MainActivity extends AppCompatActivity {
         EditText editText = findViewById(R.id.editText);
         findViewById(R.id.enterbtn).setOnClickListener(v -> {
             Intent intent = new Intent(this, ChatActivity.class);
-            intent.putExtra("name", editText.getText().toString());
+            String name = editText.getText().toString();
+            intent.putExtra("name", name);
+            userRepository.insert(new User(name));
             startActivity(intent);
         });
     }
