@@ -10,16 +10,13 @@ import androidx.room.Update;
 import br.com.socketchat.model.User;
 
 @Dao
-public interface UserDao {
+public interface UserDao extends IDao<User> {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    public void insert(User user);
-
-    @Update
-    public void update(User user);
+    void insert(User user);
 
     @Query("SELECT * FROM user WHERE id = :id")
-    public LiveData<User> getById(Integer id);
+    LiveData<User> getById(Integer id);
 
     @Query("SELECT COUNT(*) FROM user")
     LiveData<Integer> getUserCount();

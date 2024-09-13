@@ -30,11 +30,15 @@ public class User {
         this.name = name;
     }
 
+    public User(int id) {
+        this.id = id;
+    }
+
     public int getId() {
         return id;
     }
 
-    public void setId(@NotNull int id) {
+    public void setId(int id) {
         this.id = id;
     }
 

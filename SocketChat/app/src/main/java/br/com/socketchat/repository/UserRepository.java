@@ -30,6 +30,12 @@ public class UserRepository {
         );
     }
 
+    public void delete(User user) {
+        AppDatabase.databaseWriteExecutor.execute(() ->
+                userDao.delete(user)
+        );
+    }
+
     public LiveData<Boolean> hasUsers() {
         return Transformations.map(userDao.getUserCount(), count -> count > 0);
     }
