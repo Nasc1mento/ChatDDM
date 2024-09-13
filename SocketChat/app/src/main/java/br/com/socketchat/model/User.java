@@ -12,13 +12,12 @@ import java.util.Objects;
 public class User {
 
     @PrimaryKey(autoGenerate = true)
-    @NotNull
-    private Integer id;
+    private int id;
     private String name;
 
 
     public User () {
-
+        id = 0;
     }
 
     public User(@NotNull Integer id, String name) {
@@ -31,12 +30,11 @@ public class User {
         this.name = name;
     }
 
-    @NotNull
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(@NotNull Integer id) {
+    public void setId(@NotNull int id) {
         this.id = id;
     }
 
