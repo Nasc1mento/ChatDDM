@@ -20,4 +20,10 @@ public interface UserDao {
 
     @Query("SELECT * FROM user WHERE id = :id")
     public LiveData<User> getById(Integer id);
+
+    @Query("SELECT COUNT(*) FROM user")
+    LiveData<Integer> getUserCount();
+
+    @Query("SELECT * FROM user LIMIT 1")
+    LiveData<User> getSingleUser();
 }

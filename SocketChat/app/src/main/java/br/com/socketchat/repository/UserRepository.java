@@ -3,6 +3,7 @@ package br.com.socketchat.repository;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
 
 import br.com.socketchat.database.AppDatabase;
 import br.com.socketchat.database.dao.UserDao;
@@ -28,6 +29,15 @@ public class UserRepository {
                 userDao.update(user)
         );
     }
+
+    public LiveData<Boolean> hasUsers() {
+        return Transformations.map(userDao.getUserCount(), count -> count > 0);
+    }
+
+    public LiveData<User> getSingleUser() {
+        return userDao.getSingleUser();
+    }
+
 
     public LiveData<User> getById(Integer id) {
         return userDao.getById(id);
