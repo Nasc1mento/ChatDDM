@@ -25,6 +25,7 @@ import java.io.InputStream;
 
 import br.com.socketchat.ui.adapter.MessageAdapter;
 import br.com.socketchat.R;
+import br.com.socketchat.utils.ImageUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -35,11 +36,11 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher {
 
     private String name;
     private WebSocket webSocket;
-    private String SERVER_PATH = "ws://socketserver-c5qc.onrender.com";
+    private final String SERVER_PATH = "ws://192.168.0.111:3000";
     private EditText messageEdit;
     private View sendBtn, pickImgBtn;
     private RecyclerView recyclerView;
-    private int IMAGE_REQUEST_ID = 1;
+    private final int IMAGE_REQUEST_ID = 1;
     private MessageAdapter messageAdapter;
 
     @Override
@@ -186,17 +187,13 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher {
 
     private void sendImage(Bitmap image) {
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
-
-        String base64String = Base64.encodeToString(outputStream.toByteArray(),
-                Base64.DEFAULT);
+        String base64StringImage = ImageUtils.encodeToBase64(image);
 
         JSONObject jsonObject = new JSONObject();
 
         try {
             jsonObject.put("name", name);
-            jsonObject.put("image", base64String);
+            jsonObject.put("image", base64StringImage);
 
             webSocket.send(jsonObject.toString());
 

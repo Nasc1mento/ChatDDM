@@ -3,11 +3,13 @@ package br.com.socketchat.ui.adapter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,8 +19,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import br.com.socketchat.R;
+import br.com.socketchat.utils.ImageUtils;
 
 public class MessageAdapter extends RecyclerView.Adapter {
 
@@ -34,7 +38,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         this.inflater = inflater;
     }
 
-    private class SentMessageHolder extends  RecyclerView.ViewHolder{
+    private static class SentMessageHolder extends  RecyclerView.ViewHolder{
 
         TextView messageTxt;
 
@@ -45,7 +49,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private class SentImageHolder extends RecyclerView.ViewHolder{
+    private static class SentImageHolder extends RecyclerView.ViewHolder{
 
         ImageView imageView;
 
@@ -57,7 +61,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private class ReceivedMessageHolder extends RecyclerView.ViewHolder{
+    private static class ReceivedMessageHolder extends RecyclerView.ViewHolder{
 
         TextView nameTxt, messageTxt;
 
@@ -70,7 +74,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private class ReceivedImageHolder extends RecyclerView.ViewHolder{
+    private static class ReceivedImageHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;
         TextView nameTxt;
@@ -142,8 +146,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                     messageHolder.messageTxt.setText(message.getString("message"));
                 } else{
                     SentImageHolder imageHolder = (SentImageHolder) holder;
-                    Bitmap bitmap = getBitmapFromString(message.getString("image"));
-
+                    Bitmap bitmap = ImageUtils.decodeBase64(message.getString("image"));
                     imageHolder.imageView.setImageBitmap(bitmap);
                 }
             } else{
@@ -154,9 +157,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
                 } else{
                     ReceivedImageHolder imageHolder = (ReceivedImageHolder) holder;
                     imageHolder.nameTxt.setText(message.getString("name"));
-
-                    Bitmap bitmap = getBitmapFromString(message.getString("image"));
-                    imageHolder.imageView.setImageBitmap(bitmap);
+                    Bitmap bitmap = ImageUtils.decodeBase64(message.getString("image"));
+                    Log.e("Message", message.getString("image"));
+//                    if (imageHolder.imageView != null)
+                        imageHolder.imageView.setImageBitmap(bitmap);
+//                    else
+//                        Toast.makeText(imageHolder.itemView.getContext(), "imageView null",Toast.LENGTH_SHORT);
                 }
             }
         } catch (JSONException e) {
@@ -165,19 +171,12 @@ public class MessageAdapter extends RecyclerView.Adapter {
 
     }
 
-    private Bitmap getBitmapFromString(String image) {
-
-        byte[] bytes = Base64.decode(image, Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-    }
-
     @Override
     public int getItemCount() {
         return messages.size();
     }
 
-    public void addItem (JSONObject jsonObject){
+    public void addItem (JSONObject jsonObject) {
         messages.add(jsonObject);
         notifyDataSetChanged();
     }
