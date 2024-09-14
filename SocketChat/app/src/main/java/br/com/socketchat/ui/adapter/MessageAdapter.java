@@ -31,8 +31,8 @@ public class MessageAdapter extends RecyclerView.Adapter {
     private static final int TYPE_IMAGE_SENT = 2;
     private static final int TYPE_IMAGE_RECEIVED = 3;
 
-    private LayoutInflater inflater;
-    private List<JSONObject> messages = new ArrayList<>();
+    private final LayoutInflater inflater;
+    private final List<JSONObject> messages = new ArrayList<>();
 
     public MessageAdapter (LayoutInflater inflater){
         this.inflater = inflater;
@@ -159,10 +159,7 @@ public class MessageAdapter extends RecyclerView.Adapter {
                     imageHolder.nameTxt.setText(message.getString("name"));
                     Bitmap bitmap = ImageUtils.decodeBase64(message.getString("image"));
                     Log.e("Message", message.getString("image"));
-//                    if (imageHolder.imageView != null)
-                        imageHolder.imageView.setImageBitmap(bitmap);
-//                    else
-//                        Toast.makeText(imageHolder.itemView.getContext(), "imageView null",Toast.LENGTH_SHORT);
+                    imageHolder.imageView.setImageBitmap(bitmap);
                 }
             }
         } catch (JSONException e) {

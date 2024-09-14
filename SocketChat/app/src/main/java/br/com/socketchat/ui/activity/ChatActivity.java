@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import br.com.socketchat.network.WebSocketManager;
 import br.com.socketchat.ui.adapter.MessageAdapter;
 import br.com.socketchat.R;
 import br.com.socketchat.utils.ImageUtils;
@@ -32,16 +33,15 @@ import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
-public class ChatActivity extends AppCompatActivity implements TextWatcher {
+public class ChatActivity extends AppCompatActivity implements TextWatcher, WebSocketManager.WebSocketListener {
 
     private String name;
-    private WebSocket webSocket;
-    private final String SERVER_PATH = "ws://192.168.0.111:3000";
     private EditText messageEdit;
     private View sendBtn, pickImgBtn;
     private RecyclerView recyclerView;
     private final int IMAGE_REQUEST_ID = 1;
     private MessageAdapter messageAdapter;
+    private WebSocketManager webSocketManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,16 +49,9 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher {
         setContentView(R.layout.activity_chat);
         
         name = getIntent().getStringExtra("name");
-        initiateSocketConnection();
+        initializeView();
+        webSocketManager = new WebSocketManager(this);
 
-    }
-
-    private void initiateSocketConnection() {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(SERVER_PATH)
-                .build();
-        webSocket = client.newWebSocket(request, new SocketListener());
     }
 
     @Override
@@ -96,36 +89,33 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher {
 
     }
 
-    private class SocketListener extends WebSocketListener {
-        @Override
-        public void onMessage( WebSocket webSocket, String text) {
-            super.onMessage(webSocket, text);
+    @Override
+    public void onMessageReceived(JSONObject jsonObject) {
+        runOnUiThread( () -> {
+            try {
+                jsonObject.put("isSent", false);
+                messageAdapter.addItem(jsonObject);
+                recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
-            runOnUiThread( () -> {
-                try {
-                    JSONObject jsonObject = new JSONObject(text);
-                    jsonObject.put("isSent", false);
+    @Override
+    public void OnConnectionOpened() {
+        runOnUiThread( () -> {
+            Toast.makeText(ChatActivity.this, "Conectado",
+                    Toast.LENGTH_SHORT).show();
+        });
+    }
 
-                    messageAdapter.addItem(jsonObject);
-                    recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-
-        @Override
-        public void onOpen( WebSocket webSocket, Response response) {
-            super.onOpen(webSocket, response);
-
-            runOnUiThread(()-> {
-                Toast.makeText(ChatActivity.this, "SocketConnection Succes",
-                        Toast.LENGTH_SHORT).show();
-                
-                initializeView();
-            });
-
-        }
+    @Override
+    public void OnConnectionClosed() {
+        runOnUiThread( () -> {
+            Toast.makeText(ChatActivity.this, "Desconectado",
+                    Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void initializeView() {
@@ -147,7 +137,7 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher {
                 jsonObject.put("name", name);
                 jsonObject.put("message", messageEdit.getText().toString());
 
-                webSocket.send(jsonObject.toString());
+                webSocketManager.sendMessage(jsonObject);
                 jsonObject.put("isSent", true);
                 messageAdapter.addItem(jsonObject);
                 recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
@@ -194,8 +184,7 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher {
         try {
             jsonObject.put("name", name);
             jsonObject.put("image", base64StringImage);
-
-            webSocket.send(jsonObject.toString());
+            webSocketManager.sendMessage(jsonObject);
 
             jsonObject.put("isSent", true);
             messageAdapter.addItem(jsonObject);
