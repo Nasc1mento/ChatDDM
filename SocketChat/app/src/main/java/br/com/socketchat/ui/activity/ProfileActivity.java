@@ -1,28 +1,30 @@
-package br.com.socketchat;
+package br.com.socketchat.ui.activity;
 
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
+import br.com.socketchat.R;
 import br.com.socketchat.model.User;
 import br.com.socketchat.repository.UserRepository;
+import br.com.socketchat.viewModel.UserViewModel;
 
 public class ProfileActivity extends AppCompatActivity implements TextWatcher {
 
-    private UserRepository userRepository;
+    private UserViewModel userViewModel;
     private EditText et;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        userRepository = new UserRepository(getApplication());
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         initViews();
         initSaveBtn();
@@ -39,7 +41,7 @@ public class ProfileActivity extends AppCompatActivity implements TextWatcher {
         findViewById(R.id.save_profile_btn).setOnClickListener(v -> {
             String name = et.getText().toString();
             int id = getIntent().getIntExtra("id", 0);
-            userRepository.update(new User(id, name));
+            userViewModel.update(new User(id, name));
             finish();
         });
     }
@@ -48,7 +50,7 @@ public class ProfileActivity extends AppCompatActivity implements TextWatcher {
     private void initDeleteBtn() {
         findViewById(R.id.delete_profile_btn).setOnClickListener(v -> {
             int id = getIntent().getIntExtra("id", 0);
-            userRepository.delete(new User(id));
+            userViewModel.delete(new User(id));
             Intent intent = new Intent(this, SplashActivity.class);
             finish();
             startActivity(intent);

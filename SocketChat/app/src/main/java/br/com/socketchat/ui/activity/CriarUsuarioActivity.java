@@ -1,6 +1,7 @@
-package br.com.socketchat;
+package br.com.socketchat.ui.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,8 +10,9 @@ import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 
+import br.com.socketchat.R;
 import br.com.socketchat.model.User;
-import br.com.socketchat.repository.UserRepository;
+import br.com.socketchat.viewModel.UserViewModel;
 
 public class CriarUsuarioActivity extends AppCompatActivity implements TextWatcher {
 
@@ -24,7 +26,7 @@ public class CriarUsuarioActivity extends AppCompatActivity implements TextWatch
         initViews();
 
         btnSalvar.setOnClickListener(v -> {
-            salvarUsuario();
+            saveUser();
         });
     }
 
@@ -34,13 +36,14 @@ public class CriarUsuarioActivity extends AppCompatActivity implements TextWatch
         etCriarUsuario.addTextChangedListener(this);
     }
 
-    private void salvarUsuario(){
-        UserRepository userRepository = new UserRepository(getApplication());
+    private void saveUser(){
 
-        User user = new User();
-        user.setName(etCriarUsuario.getText().toString());
+        UserViewModel userViewModel = new ViewModelProvider.AndroidViewModelFactory(
+                getApplication()).create(UserViewModel.class);
 
-        userRepository.insert(user);
+        User user = new User(etCriarUsuario.getText().toString());
+        userViewModel.insert(user);
+
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
         finish();

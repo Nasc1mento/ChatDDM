@@ -1,4 +1,4 @@
-package br.com.socketchat;
+package br.com.socketchat.ui.adapter;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,6 +17,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import br.com.socketchat.R;
 
 public class MessageAdapter extends RecyclerView.Adapter {
 
