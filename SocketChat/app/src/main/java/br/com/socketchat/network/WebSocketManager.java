@@ -21,7 +21,7 @@ public class WebSocketManager {
         void OnConnectionClosed();
     }
 
-    private WebSocketListener webSocketListener;
+    private final WebSocketListener webSocketListener;
 
     public WebSocketManager(WebSocketListener webSocketListener) {
         this.webSocketListener = webSocketListener;
@@ -66,4 +66,7 @@ public class WebSocketManager {
         webSocket.send(jsonObject.toString());
     }
 
+    public void tryReconnect() {
+        initiateSocketConnection();
+    }
 }

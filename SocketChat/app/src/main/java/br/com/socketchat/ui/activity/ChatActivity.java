@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -27,19 +25,15 @@ import br.com.socketchat.network.WebSocketManager;
 import br.com.socketchat.ui.adapter.MessageAdapter;
 import br.com.socketchat.R;
 import br.com.socketchat.utils.ImageUtils;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
 
 public class ChatActivity extends AppCompatActivity implements TextWatcher, WebSocketManager.WebSocketListener {
+
+    private final int IMAGE_REQUEST_ID = 1;
 
     private String name;
     private EditText messageEdit;
     private View sendBtn, pickImgBtn;
     private RecyclerView recyclerView;
-    private final int IMAGE_REQUEST_ID = 1;
     private MessageAdapter messageAdapter;
     private WebSocketManager webSocketManager;
 
