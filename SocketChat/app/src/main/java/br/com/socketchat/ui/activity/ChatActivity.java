@@ -102,6 +102,15 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
             Toast.makeText(ChatActivity.this, "Conectado",
                     Toast.LENGTH_SHORT).show();
         });
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("type", "join");
+            jsonObject.put("name", name);
+            webSocketManager.sendMessage(jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
