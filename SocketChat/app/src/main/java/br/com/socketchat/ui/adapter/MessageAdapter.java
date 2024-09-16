@@ -125,9 +125,9 @@ public class MessageAdapter extends RecyclerView.Adapter {
             case TYPE_IMAGE_RECEIVED:
                 view = inflater.inflate(R.layout.item_received_photo, parent, false);
                 return new ReceivedImageHolder(view);
+            default:
+                throw new IllegalArgumentException("Invalid view type");
         }
-
-        return null;
     }
 
     @Override

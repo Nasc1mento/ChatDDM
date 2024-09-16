@@ -16,16 +16,8 @@ server.on("connection", connection => {
             connection.name = parsed.name;
             connections.push(connection);
             
-            // server.sendBroadcast(JSON.stringify({
-            //     "list": connections.map(c => ({ id: c.id, name: c.name }))
-            // }));
-
-        // } else if(parsed.type == "connections") {
-        //     connection.send(JSON.stringify({
-        //         "list": connections.map(c => ({ id: c.id, name: c.name }))
-        //     }));
-
         } else {
+            console.log(parsed);
             server.sendBroadcastEx(connection, JSON.stringify(parsed).toString("utf-8"));
         }
     });
@@ -33,12 +25,6 @@ server.on("connection", connection => {
 
     connection.on("close", () => {
         connections.splice(connections.indexOf(connection), 1);
-
-        // server.sendBroadcast(JSON.stringify({
-        //     "type": "left",
-        //     "list": connections.map(c => ({ id: c.id, name: c.name }))
-        // }));
-        
     });
 })
 

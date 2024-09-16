@@ -12,18 +12,18 @@ import okhttp3.WebSocket;
 
 public class WebSocketManager {
 
+    private static final String SERVER_PATH = "ws://192.168.0.111:3000";
+    private final IWebSocketListener webSocketListener;
     private WebSocket webSocket;
-    private final String SERVER_PATH = "ws://192.168.0.111:3000";
 
-    public interface WebSocketListener {
+    public interface IWebSocketListener {
         void onMessageReceived(JSONObject jsonObject);
-        void OnConnectionOpened();
-        void OnConnectionClosed();
+        void onConnectionOpened();
+        void onConnectionClosed();
+        void onError(String message);
     }
 
-    private final WebSocketListener webSocketListener;
-
-    public WebSocketManager(WebSocketListener webSocketListener) {
+    public WebSocketManager(IWebSocketListener webSocketListener) {
         this.webSocketListener = webSocketListener;
         initiateSocketConnection();
     }
@@ -38,7 +38,7 @@ public class WebSocketManager {
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
                 if (webSocketListener != null)
-                    webSocketListener.OnConnectionOpened();
+                    webSocketListener.onConnectionOpened();
             }
 
             @Override
@@ -57,16 +57,22 @@ public class WebSocketManager {
             @Override
             public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
                 if (webSocketListener != null)
-                    webSocketListener.OnConnectionClosed();
+                    webSocketListener.onConnectionClosed();
+            }
+
+            @Override
+            public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, Response response) {
+                if (webSocketListener != null)
+                    webSocketListener.onError("Connection Error:" + t.getMessage());
             }
         });
     }
 
-    public void sendMessage(JSONObject jsonObject) {
+    public void sendMessage(@NonNull JSONObject jsonObject) {
         webSocket.send(jsonObject.toString());
     }
 
-    public void tryReconnect() {
-        initiateSocketConnection();
+    public void closeConnection() {
+        webSocket.close(1000, null);
     }
 }

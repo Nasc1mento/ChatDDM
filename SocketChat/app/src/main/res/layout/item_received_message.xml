@@ -23,6 +23,6 @@
         android:layout_marginEnd="64dp"
         android:layout_marginBottom="4dp"
         android:textSize="16sp"
-        android:text="Olá, Estou usando whatsapp!"/>
+        android:text="Olá, Estou usando Chat Lamp!"/>
 
 </RelativeLayout>

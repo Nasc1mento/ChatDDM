@@ -8,9 +8,7 @@ import java.io.ByteArrayOutputStream;
 
 public class ImageUtils {
 
-    private ImageUtils() {
-
-    }
+    private ImageUtils() {}
 
     public static String encodeToBase64(Bitmap image) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

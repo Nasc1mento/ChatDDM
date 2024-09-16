@@ -13,7 +13,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,8 +24,9 @@ import br.com.socketchat.network.WebSocketManager;
 import br.com.socketchat.ui.adapter.MessageAdapter;
 import br.com.socketchat.R;
 import br.com.socketchat.utils.ImageUtils;
+import br.com.socketchat.utils.ToastUtils;
 
-public class ChatActivity extends AppCompatActivity implements TextWatcher, WebSocketManager.WebSocketListener {
+public class ChatActivity extends AppCompatActivity implements TextWatcher, WebSocketManager.IWebSocketListener {
 
     private final int IMAGE_REQUEST_ID = 1;
 
@@ -49,14 +49,16 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
     }
 
     @Override
-    public void beforeTextChanged(CharSequence s, int i, int i1, int i2) {
-
+    public void onBackPressed() {
+        super.onBackPressed();
+        webSocketManager.closeConnection();
     }
 
     @Override
-    public void onTextChanged(CharSequence s, int i, int i1, int i2) {
+    public void beforeTextChanged(CharSequence s, int i, int i1, int i2) {}
 
-    }
+    @Override
+    public void onTextChanged(CharSequence s, int i, int i1, int i2) {}
 
     @Override
     public void afterTextChanged(Editable s) {
@@ -69,7 +71,6 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
             sendBtn.setVisibility(View.VISIBLE);
             pickImgBtn.setVisibility(View.INVISIBLE);
         }
-
     }
 
     private void resetMessageEdit() {
@@ -97,11 +98,8 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
     }
 
     @Override
-    public void OnConnectionOpened() {
-        runOnUiThread( () -> {
-            Toast.makeText(ChatActivity.this, "Conectado",
-                    Toast.LENGTH_SHORT).show();
-        });
+    public void onConnectionOpened() {
+        runOnUiThread( () -> ToastUtils.toast(ChatActivity.this, "Conectado"));
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -114,11 +112,13 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
     }
 
     @Override
-    public void OnConnectionClosed() {
-        runOnUiThread( () -> {
-            Toast.makeText(ChatActivity.this, "Desconectado",
-                    Toast.LENGTH_SHORT).show();
-        });
+    public void onConnectionClosed() {
+        runOnUiThread( () -> ToastUtils.toast(ChatActivity.this, "Desconectado"));
+    }
+
+    @Override
+    public void onError(String message) {
+        runOnUiThread( () -> ToastUtils.toast(ChatActivity.this, message));
     }
 
     private void initializeView() {
@@ -173,9 +173,7 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
-
     }
 
     private void sendImage(Bitmap image) {
@@ -196,6 +194,5 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 }

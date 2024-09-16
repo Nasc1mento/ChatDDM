@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import br.com.socketchat.R;
 import br.com.socketchat.model.User;
-import br.com.socketchat.repository.UserRepository;
 import br.com.socketchat.viewModel.UserViewModel;
 
 public class ProfileActivity extends AppCompatActivity implements TextWatcher {
@@ -51,7 +50,7 @@ public class ProfileActivity extends AppCompatActivity implements TextWatcher {
         findViewById(R.id.delete_profile_btn).setOnClickListener(v -> {
             int id = getIntent().getIntExtra("id", 0);
             userViewModel.delete(new User(id));
-            Intent intent = new Intent(this, SplashActivity.class);
+            Intent intent = new Intent(this, MainActivity.class);
             finish();
             startActivity(intent);
 
