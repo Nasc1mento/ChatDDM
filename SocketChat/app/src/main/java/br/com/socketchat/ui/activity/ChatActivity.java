@@ -1,5 +1,6 @@
 package br.com.socketchat.ui.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,12 +20,20 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import br.com.socketchat.model.Message;
 import br.com.socketchat.network.WebSocketManager;
+import br.com.socketchat.network.api.ApiService;
+import br.com.socketchat.network.api.RetrofitClient;
 import br.com.socketchat.ui.adapter.MessageAdapter;
 import br.com.socketchat.R;
 import br.com.socketchat.utils.ImageUtils;
 import br.com.socketchat.utils.ToastUtils;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatActivity extends AppCompatActivity implements TextWatcher, WebSocketManager.IWebSocketListener {
 
@@ -36,6 +45,7 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
     private RecyclerView recyclerView;
     private MessageAdapter messageAdapter;
     private WebSocketManager webSocketManager;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +55,8 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
         name = getIntent().getStringExtra("name");
         initializeView();
         webSocketManager = new WebSocketManager(this);
-
+        apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
+        loadHistory();
     }
 
     @Override
@@ -140,6 +151,24 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
                 jsonObject.put("name", name);
                 jsonObject.put("message", messageEdit.getText().toString());
 
+                // ################# Start API Call ##########################
+                Message message = new Message(name,messageEdit.getText().toString());
+                Call<Message> call = apiService.post(message);
+                call.enqueue(new Callback<Message>() {
+                    @Override
+                    public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
+                        Message responseMessage = response.body();
+                        ToastUtils.toast(ChatActivity.this, responseMessage.getMessage());
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<Message> call, @NonNull Throwable throwable) {
+                        call.cancel();
+                    }
+                });
+
+                // ################# End API Call ##########################
+
                 webSocketManager.sendMessage(jsonObject);
                 jsonObject.put("isSent", true);
                 messageAdapter.addItem(jsonObject);
@@ -194,5 +223,36 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void loadHistory() {
+        // ###################### Start API CALL CODIGO TENEBROSO NÂO OLHE FIXAMENTE ############
+        final List<Message>[] messages = new List[]{new ArrayList<>()};
+        Call<List<Message>> call = apiService.get();
+
+        call.enqueue(new Callback<List<Message>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Message>> call, @NonNull Response<List<Message>> response) {
+                final List<Message> messages = response.body();
+                for (Message message : messages) {
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("name", message.getName());
+                        jsonObject.put("message", message.getMessage());
+                        jsonObject.put("isSent", false);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    messageAdapter.addItem(jsonObject);
+                }
+                recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<Message>> call, @NonNull Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
+    // ###################### End API CALL CODIGO TENEBROSO NÂO OLHE FIXAMENTE ############
     }
 }
