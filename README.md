@@ -4,15 +4,15 @@
 
 ### Utilizando Docker/Podman
 
-``` docker-compose build```
+```docker-compose build```
 
-``` docker-compose up ```
+```docker-compose up```
 
 ### Sem Docker
 
 #### Nos diretórios `/Api` e `/SocketServer`
 
-``` npm install && npm run start```
+```npm install && npm run start```
 
 
 ## Aplicativo
