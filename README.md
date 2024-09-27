@@ -20,7 +20,7 @@
 [Download](https://github.com/Nasc1mento/chat-ddm/releases)
 
 
-### Equipe:
+## Equipe:
 - [Adryan Reis](https://github.com/Nasc1mento/)
 - [Antônio Pedro](https://github.com/Antoniop87/)
 - [Luana Germano](https://github.com/LuanaGerm4no)
