@@ -1,3 +1,3 @@
-# Socker Server for ChatLamp
+# ChatLamp Socket Server
 
 
