@@ -1,4 +1,4 @@
-# API REST for Chatlamp
+# ChatLamp API
 
 ## Endpoints
 
