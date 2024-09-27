@@ -1,10 +1,11 @@
+import { env } from "../env";
 import { IDatabaseConnection } from "./database.connection.interface";
 import mongoose from "mongoose";
 
 export class MongoConnection implements IDatabaseConnection {
     
     async connect() {
-        const uri = "mongodb+srv://adryan:adryan@cluster.obrpkn7.mongodb.net/?retryWrites=true&w=majority&appName=cluster";
+        const uri = env.MONGO_URI;
 
         try {
             await mongoose.connect(uri);

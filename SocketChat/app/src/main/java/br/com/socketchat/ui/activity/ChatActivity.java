@@ -20,20 +20,17 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import br.com.socketchat.model.Message;
 import br.com.socketchat.network.WebSocketManager;
 import br.com.socketchat.network.api.ApiService;
 import br.com.socketchat.network.api.RetrofitClient;
+import br.com.socketchat.repository.MessageRepository;
 import br.com.socketchat.ui.adapter.MessageAdapter;
 import br.com.socketchat.R;
 import br.com.socketchat.utils.ImageUtils;
 import br.com.socketchat.utils.ToastUtils;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ChatActivity extends AppCompatActivity implements TextWatcher, WebSocketManager.IWebSocketListener {
 
@@ -45,7 +42,7 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
     private RecyclerView recyclerView;
     private MessageAdapter messageAdapter;
     private WebSocketManager webSocketManager;
-    private ApiService apiService;
+    private MessageRepository messageRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +52,7 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
         name = getIntent().getStringExtra("name");
         initializeView();
         webSocketManager = new WebSocketManager(this);
-        apiService = RetrofitClient.getRetrofitInstance().create(ApiService.class);
+        this.messageRepository = new MessageRepository();
         loadHistory();
     }
 
@@ -153,21 +150,17 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
 
                 // ################# Start API Call ##########################
                 Message message = new Message(name,messageEdit.getText().toString());
-                Call<Message> call = apiService.post(message);
-                call.enqueue(new Callback<Message>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Message> call, @NonNull Response<Message> response) {
-                        Message responseMessage = response.body();
-                        ToastUtils.toast(ChatActivity.this, responseMessage.getMessage());
-                    }
+                messageRepository.post(message, new MessageRepository.MessageRepositoryCallback<Message>() {
 
                     @Override
-                    public void onFailure(@NonNull Call<Message> call, @NonNull Throwable throwable) {
-                        call.cancel();
+                    public void onSuccess(Message message) {}
+
+                    @Override
+                    public void onError(String message) {
+                        ToastUtils.toast(ChatActivity.this, "Failed to persist message");
                     }
                 });
-
-                // ################# End API Call ##########################
+                // ################# END API CALL ##########################
 
                 webSocketManager.sendMessage(jsonObject);
                 jsonObject.put("isSent", true);
@@ -226,14 +219,10 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
     }
 
     private void loadHistory() {
-        // ###################### Start API CALL CODIGO TENEBROSO NÂO OLHE FIXAMENTE ############
-        final List<Message>[] messages = new List[]{new ArrayList<>()};
-        Call<List<Message>> call = apiService.get();
-
-        call.enqueue(new Callback<List<Message>>() {
+        // ###################### Start API CALL ############
+        messageRepository.getMessageHistory(new MessageRepository.MessageRepositoryCallback<List<Message>>() {
             @Override
-            public void onResponse(@NonNull Call<List<Message>> call, @NonNull Response<List<Message>> response) {
-                final List<Message> messages = response.body();
+            public void onSuccess(List<Message> messages) {
                 for (Message message : messages) {
                     JSONObject jsonObject = new JSONObject();
                     try {
@@ -249,10 +238,11 @@ public class ChatActivity extends AppCompatActivity implements TextWatcher, WebS
             }
 
             @Override
-            public void onFailure(@NonNull Call<List<Message>> call, @NonNull Throwable throwable) {
-                throwable.printStackTrace();
+            public void onError(String message) {
+                ToastUtils.toast(ChatActivity.this, "Failed to load history");
             }
         });
-    // ###################### End API CALL CODIGO TENEBROSO NÂO OLHE FIXAMENTE ############
+
+    // ###################### End API CALL ############
     }
 }

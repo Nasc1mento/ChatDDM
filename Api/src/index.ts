@@ -2,6 +2,7 @@ import { IDatabaseConnection } from "./databases/database.connection.interface";
 import express, {Express} from "express";
 import { MongoConnection } from "./databases/mongo.database.connection";
 import { Routes } from "./routes/routes";
+import { env } from "./env";
 
 class Server {
 
@@ -18,7 +19,7 @@ class Server {
         this.configMiddleware();
         this.configRoutes();
 
-        this.app.listen(3001, () => {
+        this.app.listen(env.PORT, () => {
             console.log("running");
         });
     }
